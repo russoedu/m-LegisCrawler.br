@@ -1,0 +1,32 @@
+<m-moblet init="init"  is-loading="isLoading" inner-scroll="true" no-content="noContent" unavaliable="error">
+  <m-content reload="load" more="more" >
+    <!-- LIST -->
+    <div class="list" ng-if="!isDetail">
+      
+      <!-- CARD STYLE -->
+      <div ng-if="isCard" class="item style-card" ng-repeat="(key, item) in items"
+           ng-click="goTo(item)">
+        <h1 ng-bind="item.title"></h1>
+				<p ng-bind-html="stripHtml(item.description) | mCut:100"></p>
+				<img ng-src="{{item.image | mEncoder:'crop':70:114}}" img-resize>
+      </div>
+      <!-- LIST ITEM -->
+      <div ng-if="isList" class="item style-list" ng-repeat="(key, item) in items"
+           ng-click="goTo(item)">
+				<div class="img-container" ng-if="isList">
+					<img ng-src="{{item.image | mEncoder:'crop':70:114}}" img-resize>
+				</div>
+        <h1 ng-bind="item.title"></h1>
+				<p ng-bind-html="stripHtml(item.description) | mCut:60"></p>
+      </div>
+    </div>
+    <!-- Detail -->
+    <div class="detail m-theme-null-background {{ itemStyle }}" ng-if="isDetail">
+      <img class="full-width-image" ng-src="{{detail.image}}">
+      <div class="detail-container">
+        <h1 class="title" ng-bind="detail.title"></h1>
+        <div class="description" m-bind-html="detail.description"></div>
+      </div>
+    </div>
+  </m-content>
+</m-moblet>

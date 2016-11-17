@@ -1,0 +1,40 @@
+{
+  "name": "m-legiscrawler-br",
+  "version": "0.0.1",
+  "description": "This is a list moblet for Moblets and FabApp. You can use it as base to create a new one.",
+  "main": "server/feed.js",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.1.6",
+    "eslint": "^2.8.0",
+    "eslint-config-google": "^0.5.0",
+    "eslint-plugin-jsdoc": "^2.3.1",
+    "jsdoc": "^3.4.0"
+  },
+  "keywords": [
+    "example",
+    "base",
+    "Moblet",
+    "Moblets",
+    "FabApp",
+    "list",
+    "simple"
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/russoedu/m-LegisCrawler.br.git"
+  },
+  "author": "Eduardo Russo",
+  "bugs": {
+    "url": "https://github.com/russoedu/m-LegisCrawler.br/issues"
+  },
+  "homepage": "https://github.com/russoedu/m-LegisCrawler.br#readme"
+}
