@@ -1,11 +1,10 @@
 /* eslint no-undef: [0]*/
 module.exports = {
-  title: "mLegiscrawler.br",
-  style: "m-legiscrawler.br.less",
-  template: 'm-legiscrawler.br.html',
+  title: "mLegiscrawlerBr",
+  style: "m-legiscrawler-br.less",
+  template: 'm-legiscrawler-br.html',
   i18n: {
-    pt: "lang/pt-BR.json",
-    en: "lang/en-US.json"
+    pt: "lang/pt-BR.json"
   },
   link: function() {},
   controller: function(
