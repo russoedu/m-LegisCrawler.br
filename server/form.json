@@ -3,7 +3,7 @@
     {
       "name": "name",
       "type": "text",
-      "required": true,
+      "required": true
     }
   ]
 }
