@@ -1,3 +1,9 @@
 {
-
+  "fields": [
+    {
+      "name": "apiKey",
+      "type": "text",
+      "required": true,
+    }
+  ]
 }
