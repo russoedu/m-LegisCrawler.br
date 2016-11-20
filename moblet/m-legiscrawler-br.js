@@ -124,13 +124,13 @@ module.exports = {
             if (isDefined(list) && list.length > 0) {
               // Put the list in the $scope
               $scope.list = list;
-              // Set the view
-              $scope.view = page.LIST;
 
               // Set error and emptData to false
               $scope.error = false;
               $scope.noContent = false;
 
+              // Add functions to the scope
+              $scope.goToLegislation = listController.goToLegislation;
               // Remove the loader
               $scope.isLoading = false;
 
@@ -143,6 +143,19 @@ module.exports = {
           })
           .catch(function(err) {
             console.error(err);
+            helpers.error();
+          });
+      },
+      goToLegislation: function(legislation) {
+        console.log(legislation);
+        legislationModel.getLegislation(legislation)
+          .then(function(response) {
+            console.log(response.data);
+            $stateParams.detail = page.LEGISLATION + '&' + legislation;
+            $state.go('pages', $stateParams);
+          })
+          .catch(function(error) {
+            console.error(error);
             helpers.error();
           });
       }
@@ -160,6 +173,8 @@ module.exports = {
       // Decide where to go based on the $stateParams
       if ($stateParams.detail === '') {
         console.debug('LIST');
+        // Set the view
+        $scope.view = page.LIST;
         /** LIST PAGE **/
         appModel.loadInstanceData()
           .then(function() {

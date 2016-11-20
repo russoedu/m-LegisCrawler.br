@@ -1,4 +1,4 @@
-<m-moblet init="router"  is-loading="isLoading" inner-scroll="true" no-content="noContent" unavaliable="error">
+<m-moblet init="init"  is-loading="isLoading" inner-scroll="true" no-content="noContent" unavaliable="error">
   <m-content has-bouncing="false" scroll="false">
 		<div class="search-bar m-theme-bar-top">
 			<input
@@ -15,17 +15,13 @@
 			direction="y"
 			ng-style="{'height':listHeight()}">
 	    <div class="list" ng-if="view === 'list'">
-	      <!-- CARD STYLE -->
+	      <!-- ITEM -->
 	      <div
 					class="item {{ listStyle }}"
-					ng-repeat="(i, item) in list | filter: search">
-	        <h1>{{item}}</h1>
+					ng-repeat="legislation in list | filter: search"
+					ng-click="goToLegislation(legislation)">
+	        <h1>{{legislation}}</h1>
 	      </div>
-	      <!-- LIST ITEM -->
-	      <!-- <div ng-if="isList" class="item style-list" ng-repeat="(key, item) in list"
-	           ng-click="goTo(item)">
-	        <h1 ng-bind="item"></h1>
-	      </div> -->
 	    </div>
 		</ion-scroll>
     <!-- Detail -->
