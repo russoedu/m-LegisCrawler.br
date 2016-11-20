@@ -10,7 +10,16 @@
       }
     },
     {
-      "name": "itemStyle",
+      "name": "legislationStyle",
+      "type": "select",
+      "required": true,
+      "values": {
+        "style-list": "style_list",
+        "style-card": "style_card"
+      }
+    },
+    {
+      "name": "articleStyle",
       "type": "select",
       "required": true,
       "values": {

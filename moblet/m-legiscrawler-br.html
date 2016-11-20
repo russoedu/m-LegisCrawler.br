@@ -1,37 +1,83 @@
-<m-moblet init="init"  is-loading="isLoading" inner-scroll="true" no-content="noContent" unavaliable="error">
-  <m-content has-bouncing="false" scroll="false">
-		<div class="search-bar m-theme-bar-top">
+<m-moblet
+init="init"
+is-loading="isLoading"
+inner-scroll="false"
+no-content="noContent"
+unavaliable="error"
+>
+  <m-content has-bouncing="false">
+		<div
+		ng-if="view === 'list' || view === 'legislation'"
+		class="search-bar m-theme-bar-top"
+		>
 			<input
-				class="search-input"
-				type="search"
-				ng-model="searchModel"
-				ng-change="updateSearch(searchModel)"
-				placeholder="Buscar Legislação">
+			ng-model="$parent.searchText"
+			ng-model-options="{debounce: 500}"
+			type="search"
+			class="search-input"
+			placeholder="Buscar Legislação"
+			>
     </div>
     <!-- LIST -->
 		<ion-scroll
-			class="legislations"
-			overflow-scroll="false"
-			direction="y"
-			ng-style="{'height':listHeight()}">
-	    <div class="list" ng-if="view === 'list'">
+		ng-if="view === 'list'"
+		overflow-scroll="false"
+		direction="y"
+		class="list"
+		ng-style="{'height':listHeight}"
+		>
+      <!-- ITEM -->
+      <div
+			ng-repeat="legislation in list | filter: $parent.searchText"
+			ng-click="goToLegislation(legislation)"
+			class="item {{ listStyle }}"
+			>
+        <h1>
+					{{ legislation }}
+				</h1>
+	    </div>
+		</ion-scroll>
+		<!-- LEGISLATION -->
+		<ion-scroll
+		ng-if="view === 'legislation'"
+		overflow-scroll="false"
+		direction="y"
+		class="legislation list"
+		ng-style="{'height':listHeight}"
+		>
 	      <!-- ITEM -->
 	      <div
-					class="item {{ listStyle }}"
-					ng-repeat="legislation in list | filter: search"
-					ng-click="goToLegislation(legislation)">
-	        <h1>{{legislation}}</h1>
+				ng-repeat="(index, article) in legislation | filter: $parent.searchText"
+				ng-click="goToArticle(legislationType, index)"
+				class="item {{ listStyle }}"
+				>
+	        <h1
+					translate="article"
+					translate-values="{ number: article.number }"
+					>
+					</h1>
+					<p>
+						{{ article.article }}
+					</p>
 	      </div>
-	    </div>
 		</ion-scroll>
     <!-- Detail -->
     <div
-			class="detail m-theme-null-background {{ itemStyle }}"
-			ng-if="view === 'legislation'">
-      <img class="full-width-image" ng-src="{{detail.image}}">
+		ng-if="view === 'article'"
+		class="detail m-theme-null-background {{ articleStyle }}"
+		>
       <div class="detail-container">
-        <h1 class="title" ng-bind="detail.title"></h1>
-        <div class="description" m-bind-html="detail.description"></div>
+				<h1>
+					{{ legislationType }}
+				</h1>
+				<h2
+      	translate="article"
+				translate-values="{ number: number }"
+				>
+				</h2>
+        <div class="description">
+        	{{ article }}
+        </div>
       </div>
     </div>
   </m-content>

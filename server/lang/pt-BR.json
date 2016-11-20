@@ -5,15 +5,22 @@
     "description": "LegisCrawler.br possui a legislação brasileira atualizada diariamente."
   },
   "listStyle": {
-    "label": "Estilo da lista",
+    "label": "Estilo da lista de legislações",
     "hint": "Escolha o estilo da lista",
     "placeholder": "Escolha um estilo",
     "style_list": "Página inteira",
     "style_card": "Cartão"
   },
-  "itemStyle": {
-    "label": "Estilo do item",
-    "hint": "Escolha o estilo do conteúdo",
+  "legislationStyle": {
+    "label": "Estilo da lista de artigos",
+    "hint": "Escolha o estilo da lista de artigos",
+    "placeholder": "Escolha um estilo",
+    "style_list": "Página inteira",
+    "style_card": "Cartão"
+  },
+  "articleStyle": {
+    "label": "Estilo do artigo",
+    "hint": "Escolha o estilo do artigo",
     "placeholder": "Escolha um estilo",
     "style_list": "Página inteira",
     "style_card": "Cartão"

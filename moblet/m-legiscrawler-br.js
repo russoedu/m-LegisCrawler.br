@@ -10,11 +10,10 @@ module.exports = {
   controller: function(
     $scope,
     $rootScope,
-    $filter,
-    $interval,
     $timeout,
     $state,
     $stateParams,
+    $ionicScrollDelegate,
     $mDataLoader,
     $mFrameSize,
     $http,
@@ -29,69 +28,92 @@ module.exports = {
     };
 
     var helpers = {
-      error: function() {
+      error: function(err) {
+        console.error(err);
         $scope.isLoading = false;
         $scope.error = true;
         $scope.noContent = true;
       },
+      successViewLoad: function() {
+        // Set error and noContent to false
+        $scope.error = false;
+        $scope.noContent = false;
+
+        // Remove the loader
+        $scope.isLoading = false;
+
+        // Broadcast complete refresh and infinite scroll
+        $rootScope.$broadcast('scroll.refreshComplete');
+        $rootScope.$broadcast('scroll.infiniteScrollComplete');
+      },
       listHeight: function() {
         var height = parseInt($mFrameSize.height(), 10);
         return (height - 50) + "px";
-      },
-      removeAccents: function(value) {
-        value = value
-          .toLowerCase()
-          .replace(
-            /(\u0061[\u0300\u0301\u0302\u0303\u0304\u0305]|[áàâãä])/g,
-            'a')
-          .replace(
-            /(\u0065[\u0300\u0301\u0302\u0303\u0304\u0305]|[éèêë])/g,
-            'e')
-          .replace(
-            /(\u0069[\u0300\u0301\u0302\u0303\u0304\u0305]|[íìîï])/g,
-            'i')
-          .replace(
-            /(\u006F[\u0300\u0301\u0302\u0303\u0304\u0305]|[óòôõö])/g,
-            'o')
-          .replace(
-            /(\u0075[\u0300\u0301\u0302\u0303\u0304\u0305]|[úùûü])/g,
-            'u')
-          .replace(
-            /(\u0063\u0327|ç)/g,
-            'c');
-        return value;
-      },
-      updateSearch: function(text) {
-        $scope.searchText = text;
-      },
-      search: function(item) {
-        if (!$scope.searchText) {
-          return true;
-        }
-
-        var text = helpers.removeAccents(item);
-        var search = helpers.removeAccents($scope.searchText);
-
-        return text.indexOf(search) > -1;
       }
+    // removeAccents: function(value) {
+    //   value = value
+    //     .toLowerCase()
+    //     .replace(
+    //       /(\u0061[\u0300\u0301\u0302\u0303\u0304\u0305]|[áàâãä])/g,
+    //       'a')
+    //     .replace(
+    //       /(\u0065[\u0300\u0301\u0302\u0303\u0304\u0305]|[éèêë])/g,
+    //       'e')
+    //     .replace(
+    //       /(\u0069[\u0300\u0301\u0302\u0303\u0304\u0305]|[íìîï])/g,
+    //       'i')
+    //     .replace(
+    //       /(\u006F[\u0300\u0301\u0302\u0303\u0304\u0305]|[óòôõö])/g,
+    //       'o')
+    //     .replace(
+    //       /(\u0075[\u0300\u0301\u0302\u0303\u0304\u0305]|[úùûü])/g,
+    //       'u')
+    //     .replace(
+    //       /(\u0063\u0327|ç)/g,
+    //       'c');
+    //   return value;
+    // },
+    // updateSearch: function(text) {
+    //   $scope.searchText = text;
+    // },
+    // search: function(item) {
+    //   if (!$scope.searchText) {
+    //     return true;
+    //   }
+    //   if (typeof item === 'object') {
+    //     item = 'Artigo ' + item.number + ' ' + item.article;
+    //   }
+    //
+    //   var text = helpers.removeAccents(item);
+    //   var search = helpers.removeAccents($scope.searchText);
+    //
+    //   $timeout(function() {
+    //     // Broadcast complete refresh and infinite scroll
+    //     $ionicScrollDelegate.scrollTop();
+    //     $rootScope.$broadcast('scroll.refreshComplete');
+    //     $rootScope.$broadcast('scroll.infiniteScrollComplete');
+    //   }, 100);
+    //   return text.indexOf(search) > -1;
+    // }
     };
 
     var appModel = {
       loadInstanceData: function() {
         var deferred = $q.defer();
         var dataLoadOptions = {
-          cache: false
+          cache: ($stateParams.detail !== "")
         };
 
         $mDataLoader.load($scope.moblet, dataLoadOptions)
           .then(function(data) {
             $scope.listStyle = data.listStyle;
-            $scope.itemStyle = data.itemStyle;
+            $scope.legislationStyle = data.legislationStyle;
+            $scope.articleStyle = data.articleStyle;
             deferred.resolve();
           })
-          .catch(function(error) {
-            console.error(error);
-            deferred.reject();
+          .catch(function(err) {
+            helpers.error(err);
+            deferred.reject(err);
           });
         return deferred.promise;
       }
@@ -105,9 +127,9 @@ module.exports = {
             function(response) {
               deferred.resolve(response.data);
             },
-            function(error) {
-              console.error(error);
-              deferred.reject(error);
+            function(err) {
+              helpers.error(err);
+              deferred.reject(err);
             }
         );
         return deferred.promise;
@@ -125,78 +147,106 @@ module.exports = {
               // Put the list in the $scope
               $scope.list = list;
 
-              // Set error and emptData to false
-              $scope.error = false;
-              $scope.noContent = false;
-
               // Add functions to the scope
               $scope.goToLegislation = listController.goToLegislation;
-              // Remove the loader
-              $scope.isLoading = false;
 
-              // Broadcast complete refresh and infinite scroll
-              $rootScope.$broadcast('scroll.refreshComplete');
-              $rootScope.$broadcast('scroll.infiniteScrollComplete');
+              helpers.successViewLoad();
             } else {
-              helpers.error();
+              helpers.error('list not loaded');
             }
-          })
-          .catch(function(err) {
-            console.error(err);
-            helpers.error();
+          }).catch(function(err) {
+            helpers.error(err);
           });
       },
       goToLegislation: function(legislation) {
-        console.log(legislation);
-        legislationModel.getLegislation(legislation)
-          .then(function(response) {
-            console.log(response.data);
-            $stateParams.detail = page.LEGISLATION + '&' + legislation;
-            $state.go('pages', $stateParams);
-          })
-          .catch(function(error) {
-            console.error(error);
-            helpers.error();
-          });
+        $stateParams.detail = page.LEGISLATION + '&' + legislation;
+        $state.go('pages', $stateParams);
       }
     };
 
-    var router = function() {
-      console.debug('router()');
-      // Set general status
-      $scope.isLoading = true;
-      // Make the needed helper functions avalable in the scope
-      $scope.updateSearch = helpers.updateSearch;
-      $scope.search = helpers.search;
-      $scope.listHeight = helpers.listHeight;
+    var legislationController = {
+      showView: function(legislation) {
+        $scope.isLoading = true;
+        legislationModel.getLegislation(legislation)
+          .then(function(legislation) {
+            $timeout(function() {
+              // Put the data in the $scope
+              $scope.legislation = legislation.data;
+              $rootScope.legislation = legislation.data;
+              $scope.legislationType = legislation.type;
+              $rootScope.legislationType = legislation.type;
 
-      // Decide where to go based on the $stateParams
-      if ($stateParams.detail === '') {
-        console.debug('LIST');
-        // Set the view
-        $scope.view = page.LIST;
-        /** LIST PAGE **/
-        appModel.loadInstanceData()
-          .then(function() {
-            listController.showView();
-          })
-          .catch(function() {
-            helpers.error();
+              // Add functions to the scope
+              $scope.goToArticle = legislationController.goToArticle;
+
+              helpers.successViewLoad();
+            }, 500);
+          }).catch(function(err) {
+            helpers.error(err);
           });
-      } else {
-        var detail = $stateParams.detail.split('&');
-        $scope.view = detail[0];
-        $stateParams.detail = detail[1];
-        if ($scope.view === page.LEGISLATION) {
-          /** PRODUCT PAGE **/
-          console.debug('LEGISLATION');
-        } else if ($scope.view === page.ARTICLE) {
-          /** CATEGORY PAGE **/
-          console.debug('ARTICLE');
+      },
+      goToArticle: function(legislationType, article) {
+        $stateParams.detail = page.ARTICLE + '&' + legislationType + '&' + article;
+        $state.go('pages', $stateParams);
+      }
+    };
+
+    var articleController = {
+      showView: function(legislationType, article) {
+        $scope.isLoading = true;
+        if ($rootScope.legislationType === legislationType) {
+          $timeout(function() {
+            // Put the data in the $scope
+            $scope.legislationType = legislationType;
+            $scope.article = $rootScope.legislation[article].article;
+            $scope.number = $rootScope.legislation[article].number;
+
+            helpers.successViewLoad();
+          }, 500);
+        } else {
+          helpers.error();
         }
       }
     };
 
+    var router = function() {
+      // Set general status
+      $scope.isLoading = true;
+      appModel.loadInstanceData()
+        .then(function() {
+          // Make the general functions avalable in the scope
+          $scope.listHeight = helpers.listHeight();
+
+          var detail = $stateParams.detail.split('&');
+          $scope.view = detail[0] === '' ? page.LIST : detail[0];
+
+          // Decide where to go based on the $stateParams
+          if ($scope.view === page.LIST) {
+            listController.showView();
+          } else if ($scope.view === page.LEGISLATION) {
+            /** PRODUCT PAGE **/
+            legislationController.showView(detail[1]);
+          } else if ($scope.view === page.ARTICLE) {
+            /** CATEGORY PAGE **/
+            articleController.showView(detail[1], detail[2]);
+          }
+        })
+        .catch(function(err) {
+          helpers.error(err);
+        });
+    };
+
     router();
+
+    // CLEAR CONSOLE
+    if (typeof console._commandLineAPI !== 'undefined') {
+      console.API = console._commandLineAPI; // chrome
+    } else if (typeof console._inspectorCommandLineAPI !== 'undefined') {
+      console.API = console._inspectorCommandLineAPI; // Safari
+    } else if (typeof console.clear !== 'undefined') {
+      console.API = console;
+    }
+
+    console.API.clear();
   }
 };
