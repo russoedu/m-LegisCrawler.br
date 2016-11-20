@@ -1,20 +1,37 @@
-<m-moblet init="init"  is-loading="isLoading" inner-scroll="true" no-content="noContent" unavaliable="error">
-  <m-content>
-    <!-- LIST -->
-    <div class="list" ng-if="!isDetail">
-      <!-- CARD STYLE -->
-      <div class="item style-list" ng-repeat="item in list"
-           ng-click="goTo(item)">
-        <h1 ng-bind="item"></h1>
-      </div>
-      <!-- LIST ITEM -->
-      <!-- <div ng-if="isList" class="item style-list" ng-repeat="(key, item) in list"
-           ng-click="goTo(item)">
-        <h1 ng-bind="item"></h1>
-      </div> -->
+<m-moblet init="router"  is-loading="isLoading" inner-scroll="true" no-content="noContent" unavaliable="error">
+  <m-content has-bouncing="false" scroll="false">
+		<div class="search-bar m-theme-bar-top">
+			<input
+				class="search-input"
+				type="search"
+				ng-model="searchModel"
+				ng-change="updateSearch(searchModel)"
+				placeholder="Buscar Legislação">
     </div>
+    <!-- LIST -->
+		<ion-scroll
+			class="legislations"
+			overflow-scroll="false"
+			direction="y"
+			ng-style="{'height':listHeight()}">
+	    <div class="list" ng-if="view === 'list'">
+	      <!-- CARD STYLE -->
+	      <div
+					class="item {{ listStyle }}"
+					ng-repeat="(i, item) in list | filter: search">
+	        <h1>{{item}}</h1>
+	      </div>
+	      <!-- LIST ITEM -->
+	      <!-- <div ng-if="isList" class="item style-list" ng-repeat="(key, item) in list"
+	           ng-click="goTo(item)">
+	        <h1 ng-bind="item"></h1>
+	      </div> -->
+	    </div>
+		</ion-scroll>
     <!-- Detail -->
-    <div class="detail m-theme-null-background {{ itemStyle }}" ng-if="isDetail">
+    <div
+			class="detail m-theme-null-background {{ itemStyle }}"
+			ng-if="view === 'legislation'">
       <img class="full-width-image" ng-src="{{detail.image}}">
       <div class="detail-container">
         <h1 class="title" ng-bind="detail.title"></h1>

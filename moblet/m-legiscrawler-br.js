@@ -16,117 +16,172 @@ module.exports = {
     $state,
     $stateParams,
     $mDataLoader,
+    $mFrameSize,
     $http,
     $q
   ) {
-    var model = {
-      dataLoadOptions: {
-        cache: ($stateParams.detail !== "")
+    var baseUrl = "https://legiscrawler.com.br:4433/v1/";
+
+    var page = {
+      LIST: 'list',
+      LEGISLATION: 'legislation',
+      ARTICLE: 'article'
+    };
+
+    var helpers = {
+      error: function() {
+        $scope.isLoading = false;
+        $scope.error = true;
+        $scope.noContent = true;
       },
-      getData: function(url) {
+      listHeight: function() {
+        var height = parseInt($mFrameSize.height(), 10);
+        return (height - 50) + "px";
+      },
+      removeAccents: function(value) {
+        value = value
+          .toLowerCase()
+          .replace(
+            /(\u0061[\u0300\u0301\u0302\u0303\u0304\u0305]|[áàâãä])/g,
+            'a')
+          .replace(
+            /(\u0065[\u0300\u0301\u0302\u0303\u0304\u0305]|[éèêë])/g,
+            'e')
+          .replace(
+            /(\u0069[\u0300\u0301\u0302\u0303\u0304\u0305]|[íìîï])/g,
+            'i')
+          .replace(
+            /(\u006F[\u0300\u0301\u0302\u0303\u0304\u0305]|[óòôõö])/g,
+            'o')
+          .replace(
+            /(\u0075[\u0300\u0301\u0302\u0303\u0304\u0305]|[úùûü])/g,
+            'u')
+          .replace(
+            /(\u0063\u0327|ç)/g,
+            'c');
+        return value;
+      },
+      updateSearch: function(text) {
+        $scope.searchText = text;
+      },
+      search: function(item) {
+        if (!$scope.searchText) {
+          return true;
+        }
+
+        var text = helpers.removeAccents(item);
+        var search = helpers.removeAccents($scope.searchText);
+
+        return text.indexOf(search) > -1;
+      }
+    };
+
+    var appModel = {
+      loadInstanceData: function() {
         var deferred = $q.defer();
-        var baseUrl = "https://legiscrawler.com.br:4433/v1/";
-        $http.get(baseUrl + (url || ''))
+        var dataLoadOptions = {
+          cache: false
+        };
+
+        $mDataLoader.load($scope.moblet, dataLoadOptions)
+          .then(function(data) {
+            $scope.listStyle = data.listStyle;
+            $scope.itemStyle = data.itemStyle;
+            deferred.resolve();
+          })
+          .catch(function(error) {
+            console.error(error);
+            deferred.reject();
+          });
+        return deferred.promise;
+      }
+    };
+
+    var legislationModel = {
+      getLegislation: function(legislation) {
+        var deferred = $q.defer();
+        $http.get(baseUrl + (legislation || ''))
           .then(
             function(response) {
-              deferred.resolve(response);
+              deferred.resolve(response.data);
             },
             function(error) {
               console.error(error);
               deferred.reject(error);
             }
-          );
+        );
         return deferred.promise;
       }
     };
-    var mainViewController = {
-       /**
-       * Show the moblet main view
-       * @param {Array} list The list of legislations
-       */
-      setMainView: function(list) {
-        $scope.isLoading = false;
-        $scope.error = false;
-        $scope.isDetail = false;
 
-        if (list.length > 0) {
-          $scope.list = list;
-
-					// Broadcast complete refresh and infinite scroll
-          $rootScope.$broadcast('scroll.refreshComplete');
-          $rootScope.$broadcast('scroll.infiniteScrollComplete');
-        } else {
-          $scope.noContent = true;
-        }
-      }
-    };
-    // var dataLoadOptions;
-    // var apiUrl = '';
-    var controller = {
+    var listController = {
       /**
-       * Check if the view is showing a detail or the list. The function checks
-       * if $stateParams.detail is set.
-       * @return {boolean} True if the view must show a detail.
-       */
-      // isDetail: function() {
-      //   return $stateParams.detail !== "";
-      // },
-      /**
-       * Show the detail getting the index from $stateParams.detail. Set "item"
-       * to the selected detail
-       */
-      // showDetail: function(detailIndex) {
-      //   if (isDefined($stateParams.detail) && $stateParams.detail !== "") {
-      //     var itemIndex = _.findIndex($scope.items, function(item) {
-      //       return item.id.toString() === $stateParams.detail;
-      //     });
-      //     if (itemIndex === -1) {
-      //       dataLoadOptions = {
-      //         offset: $scope.items === undefined ? 0 : $scope.items.length,
-      //         items: 25,
-      //         cache: false
-      //       };
-      //       list.load(false, function() {
-      //         list.showDetail();
-      //       });
-      //     } else {
-      //       $scope.detail = $scope.items[itemIndex];
-      //     }
-      //   } else if (isDefined(detailIndex)) {
-      //     $scope.detail = $scope.items[detailIndex];
-      //   }
-      // },
-      /**
-       * Get the legislations list
-       * @return {Promise} Promise that may contain the list of legislations
-       */
-      getLegislationList: function() {
-        var deferred = $q.defer();
-        model.getData()
-            .then(function(response) {
-              console.debug(response.data);
-              deferred.resolve(response.data);
-            })
-            .catch(function(error) {
-              console.error(error);
-              deferred.reject(error);
-            });
-        return deferred.promise;
-      },
-
-      init: function() {
-        $scope.isLoading = true;
-        controller.getLegislationList()
+      * Show the moblet main view
+      */
+      showView: function() {
+        legislationModel.getLegislation()
           .then(function(list) {
-            mainViewController.setMainView(list);
+            if (isDefined(list) && list.length > 0) {
+              // Put the list in the $scope
+              $scope.list = list;
+              // Set the view
+              $scope.view = page.LIST;
+
+              // Set error and emptData to false
+              $scope.error = false;
+              $scope.noContent = false;
+
+              // Remove the loader
+              $scope.isLoading = false;
+
+              // Broadcast complete refresh and infinite scroll
+              $rootScope.$broadcast('scroll.refreshComplete');
+              $rootScope.$broadcast('scroll.infiniteScrollComplete');
+            } else {
+              helpers.error();
+            }
           })
-          .catch(function(error) {
-            console.error(error);
-            $scope.isLoading = false;
-            $scope.error = true;
+          .catch(function(err) {
+            console.error(err);
+            helpers.error();
           });
       }
     };
-    controller.init();
+
+    var router = function() {
+      console.debug('router()');
+      // Set general status
+      $scope.isLoading = true;
+      // Make the needed helper functions avalable in the scope
+      $scope.updateSearch = helpers.updateSearch;
+      $scope.search = helpers.search;
+      $scope.listHeight = helpers.listHeight;
+
+      // Decide where to go based on the $stateParams
+      if ($stateParams.detail === '') {
+        console.debug('LIST');
+        /** LIST PAGE **/
+        appModel.loadInstanceData()
+          .then(function() {
+            listController.showView();
+          })
+          .catch(function() {
+            helpers.error();
+          });
+      } else {
+        var detail = $stateParams.detail.split('&');
+        $scope.view = detail[0];
+        $stateParams.detail = detail[1];
+        if ($scope.view === page.LEGISLATION) {
+          /** PRODUCT PAGE **/
+          console.debug('LEGISLATION');
+        } else if ($scope.view === page.ARTICLE) {
+          /** CATEGORY PAGE **/
+          console.debug('ARTICLE');
+        }
+      }
+    };
+
+    router();
   }
 };

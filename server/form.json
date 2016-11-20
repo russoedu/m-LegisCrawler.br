@@ -1,9 +1,22 @@
 {
   "fields": [
     {
-      "name": "name",
-      "type": "text",
-      "required": true
+      "name": "listStyle",
+      "type": "select",
+      "required": true,
+      "values": {
+        "style-list": "style_list",
+        "style-card": "style_card"
+      }
+    },
+    {
+      "name": "itemStyle",
+      "type": "select",
+      "required": true,
+      "values": {
+        "style-list": "style_list",
+        "style-card": "style_card"
+      }
     }
   ]
 }

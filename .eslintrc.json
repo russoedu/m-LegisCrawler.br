@@ -1,0 +1,12 @@
+{
+  "extends": "google",
+  "rules": {
+    "max-len": [
+      "error",
+      100,
+      {
+        "ignoreRegExpLiterals": true
+      }
+    ]
+  }
+}

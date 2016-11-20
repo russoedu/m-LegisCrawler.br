@@ -4,8 +4,18 @@
     "hint": "Insira a legislação brasileira atualizada no seu App",
     "description": "LegisCrawler.br possui a legislação brasileira atualizada diariamente."
   },
-  "name": {
-    "label": "Nome",
-    "hint": "Insira o nome"
+  "listStyle": {
+    "label": "Estilo da lista",
+    "hint": "Escolha o estilo da lista",
+    "placeholder": "Escolha um estilo",
+    "style_list": "Página inteira",
+    "style_card": "Cartão"
+  },
+  "itemStyle": {
+    "label": "Estilo do item",
+    "hint": "Escolha o estilo do conteúdo",
+    "placeholder": "Escolha um estilo",
+    "style_list": "Página inteira",
+    "style_card": "Cartão"
   }
 }
