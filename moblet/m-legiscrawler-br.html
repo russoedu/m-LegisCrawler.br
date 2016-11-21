@@ -47,8 +47,8 @@ unavaliable="error"
 		>
 	      <!-- ITEM -->
 	      <div
-				ng-repeat="(index, article) in legislation | filter: $parent.searchText"
-				ng-click="goToArticle(legislationType, index)"
+				ng-repeat="article in legislation | filter: $parent.searchText"
+				ng-click="goToArticle(legislationType, article.number)"
 				class="item {{ listStyle }}"
 				>
 	        <h1

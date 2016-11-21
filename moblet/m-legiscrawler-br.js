@@ -192,14 +192,17 @@ module.exports = {
     };
 
     var articleController = {
-      showView: function(legislationType, article) {
+      showView: function(legislationType, articleNumber) {
         $scope.isLoading = true;
         if ($rootScope.legislationType === legislationType) {
           $timeout(function() {
             // Put the data in the $scope
             $scope.legislationType = legislationType;
-            $scope.article = $rootScope.legislation[article].article;
-            $scope.number = $rootScope.legislation[article].number;
+            $scope.article = $rootScope.legislation.filter(function(obj) {
+              return obj.number === articleNumber;
+            })[0].article;
+            // $scope.article = $rootScope.legislation[article].article;
+            $scope.number = articleNumber;
 
             helpers.successViewLoad();
           }, 500);
