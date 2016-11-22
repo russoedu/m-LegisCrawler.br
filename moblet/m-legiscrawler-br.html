@@ -7,7 +7,7 @@ unavaliable="error"
 >
   <m-content has-bouncing="false">
 		<div
-		ng-if="view === 'list' || view === 'legislation'"
+		ng-if="view === 'category' || view === 'legislation'"
 		class="search-bar m-theme-bar-top"
 		>
 			<input
@@ -19,12 +19,10 @@ unavaliable="error"
 			>
     </div>
     <!-- LIST -->
-		<ion-scroll
+		<div
 		ng-if="view === 'list'"
-		overflow-scroll="false"
 		direction="y"
 		class="list"
-		ng-style="{'height':listHeight}"
 		>
       <!-- ITEM -->
       <div
@@ -36,7 +34,7 @@ unavaliable="error"
 					{{ cat.category }}
 				</h1>
 	    </div>
-		</ion-scroll>
+		</div>
 
 		<!-- CATEGORY -->
 		<ion-scroll
