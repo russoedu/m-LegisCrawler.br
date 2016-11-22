@@ -28,15 +28,37 @@ unavaliable="error"
 		>
       <!-- ITEM -->
       <div
-			ng-repeat="legislation in list | filter: $parent.searchText"
-			ng-click="goToLegislation(legislation)"
+			ng-repeat="cat in categories | filter: $parent.searchText"
+			ng-click="goToCategoryOrLegislation(cat)"
 			class="item {{ listStyle }}"
 			>
         <h1>
-					{{ legislation }}
+					{{ cat.category }}
 				</h1>
 	    </div>
 		</ion-scroll>
+
+		<!-- CATEGORY -->
+		<ion-scroll
+		ng-if="view === 'category'"
+		overflow-scroll="false"
+		direction="y"
+		class="list"
+		ng-style="{'height':listHeight}"
+		>
+	      <!-- ITEM -->
+	      <div
+				ng-repeat="legislation in categoryList | filter: $parent.searchText"
+				ng-click="goToLegislation(legislation)"
+				class="item {{ listStyle }}"
+				>
+	        <h1>
+						{{ legislation }}
+					</h1>
+	      </div>
+		</ion-scroll>
+
+
 		<!-- LEGISLATION -->
 		<ion-scroll
 		ng-if="view === 'legislation'"
@@ -48,7 +70,7 @@ unavaliable="error"
 	      <!-- ITEM -->
 	      <div
 				ng-repeat="article in legislation | filter: $parent.searchText"
-				ng-click="goToArticle(legislationType, article.number)"
+				ng-click="goToArticle(legislationName, article.number)"
 				class="item {{ listStyle }}"
 				>
 	        <h1
@@ -68,7 +90,7 @@ unavaliable="error"
 		>
       <div class="detail-container">
 				<h1>
-					{{ legislationType }}
+					{{ legislationName }}
 				</h1>
 				<h2
       	translate="article"
