@@ -223,28 +223,32 @@ module.exports = {
       $scope.isLoading = true;
       appModel.loadInstanceData()
         .then(function() {
-          // Make the general functions avalable in the scope
-          $scope.listHeight = helpers.listHeight();
-          $scope.goToLegislation = helpers.goToLegislation;
-          $scope.goToCategoryOrLegislation = helpers.goToCategoryOrLegislation;
-          $scope.goToArticle = helpers.goToArticle;
-
           var detail = $stateParams.detail.split('&');
           $scope.view = detail[0] === '' ? page.LIST : detail[0];
 
           // Decide where to go based on the $stateParams
           if ($scope.view === page.LIST) {
+            $rootScope.mobletPageTitle = undefined;
             listController.showView();
           } else if ($scope.view === page.CATEGORY) {
+            $rootScope.mobletPageTitle = detail[1];
             /** PRODUCT PAGE **/
             listController.showView(detail[1]);
           } else if ($scope.view === page.LEGISLATION) {
+            $rootScope.mobletPageTitle = detail[1];
             /** PRODUCT PAGE **/
             legislationController.showView(detail[1]);
           } else if ($scope.view === page.ARTICLE) {
+            $rootScope.mobletPageTitle = detail[1];
             /** CATEGORY PAGE **/
             articleController.showView(detail[1], detail[2]);
           }
+
+          // Make the general functions avalable in the scope
+          $scope.listHeight = helpers.listHeight();
+          $scope.goToLegislation = helpers.goToLegislation;
+          $scope.goToCategoryOrLegislation = helpers.goToCategoryOrLegislation;
+          $scope.goToArticle = helpers.goToArticle;
         })
         .catch(function(err) {
           helpers.error(err);
