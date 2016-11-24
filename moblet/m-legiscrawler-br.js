@@ -53,12 +53,12 @@ module.exports = {
       },
       goToCategoryOrLegislation: function(item) {
         if (item.link === 'category') {
-          $stateParams.detail = page.CATEGORY + '&' + item.category;
-          $state.go('pages', $stateParams);
+          $stateParams.detail = page.CATEGORY;
         } else {
-          $stateParams.detail = page.LEGISLATION + '&' + item.category;
-          $state.go('pages', $stateParams);
+          $stateParams.detail = page.LEGISLATION;
         }
+        $stateParams.detail += '&' + item.category;
+        $state.go('pages', $stateParams);
       },
       goToLegislation: function(legislation) {
         $stateParams.detail = page.LEGISLATION + '&' + legislation;
@@ -221,6 +221,7 @@ module.exports = {
     var router = function() {
       // Set general status
       $scope.isLoading = true;
+      $stateParams.pageTitle = null;
       appModel.loadInstanceData()
         .then(function() {
           var detail = $stateParams.detail.split('&');
@@ -228,18 +229,17 @@ module.exports = {
 
           // Decide where to go based on the $stateParams
           if ($scope.view === page.LIST) {
-            $rootScope.mobletPageTitle = undefined;
             listController.showView();
           } else if ($scope.view === page.CATEGORY) {
-            $rootScope.mobletPageTitle = detail[1];
+            $stateParams.pageTitle = detail[1];
             /** PRODUCT PAGE **/
             listController.showView(detail[1]);
           } else if ($scope.view === page.LEGISLATION) {
-            $rootScope.mobletPageTitle = detail[1];
+            $stateParams.pageTitle = detail[1];
             /** PRODUCT PAGE **/
             legislationController.showView(detail[1]);
           } else if ($scope.view === page.ARTICLE) {
-            $rootScope.mobletPageTitle = detail[1];
+            $stateParams.pageTitle = detail[1] + ' - Art. ' + detail[2];
             /** CATEGORY PAGE **/
             articleController.showView(detail[1], detail[2]);
           }
