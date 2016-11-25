@@ -19,7 +19,7 @@ module.exports = {
     $http,
     $q
   ) {
-    var baseUrl = "https://legiscrawler.com.br/v1/";
+    var baseUrl = "http://legiscrawler.com.br/v1/";
 
     var page = {
       LIST: 'list',
