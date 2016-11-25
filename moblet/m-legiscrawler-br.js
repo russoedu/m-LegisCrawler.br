@@ -19,7 +19,7 @@ module.exports = {
     $http,
     $q
   ) {
-    var baseUrl = "https://legiscrawler.com.br:4433/v1/";
+    var baseUrl = "https://legiscrawler.com.br/v1/";
 
     var page = {
       LIST: 'list',
@@ -171,8 +171,8 @@ module.exports = {
           .then(function(legislation) {
             $timeout(function() {
               // Put the data in the $scope
-              $scope.legislation = legislation.data;
-              $rootScope.legislation = legislation.data;
+              $scope.legislation = legislation.articles;
+              $rootScope.legislation = legislation.articles;
               $scope.legislationType = legislation.type;
               $rootScope.legislationType = legislation.type;
 
