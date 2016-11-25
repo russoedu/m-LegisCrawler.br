@@ -23,6 +23,7 @@ module.exports = {
 
     var page = {
       LIST: 'list',
+      CATEGORY: 'category',
       LEGISLATION: 'legislation',
       ARTICLE: 'article'
     };
@@ -49,52 +50,24 @@ module.exports = {
       listHeight: function() {
         var height = parseInt($mFrameSize.height(), 10);
         return (height - 50) + "px";
+      },
+      goToCategoryOrLegislation: function(item) {
+        if (item.link === 'category') {
+          $stateParams.detail = page.CATEGORY;
+        } else {
+          $stateParams.detail = page.LEGISLATION;
+        }
+        $stateParams.detail += '&' + item.category;
+        $state.go('pages', $stateParams);
+      },
+      goToLegislation: function(legislation) {
+        $stateParams.detail = page.LEGISLATION + '&' + legislation;
+        $state.go('pages', $stateParams);
+      },
+      goToArticle: function(legislationName, article) {
+        $stateParams.detail = page.ARTICLE + '&' + legislationName + '&' + article;
+        $state.go('pages', $stateParams);
       }
-    // removeAccents: function(value) {
-    //   value = value
-    //     .toLowerCase()
-    //     .replace(
-    //       /(\u0061[\u0300\u0301\u0302\u0303\u0304\u0305]|[áàâãä])/g,
-    //       'a')
-    //     .replace(
-    //       /(\u0065[\u0300\u0301\u0302\u0303\u0304\u0305]|[éèêë])/g,
-    //       'e')
-    //     .replace(
-    //       /(\u0069[\u0300\u0301\u0302\u0303\u0304\u0305]|[íìîï])/g,
-    //       'i')
-    //     .replace(
-    //       /(\u006F[\u0300\u0301\u0302\u0303\u0304\u0305]|[óòôõö])/g,
-    //       'o')
-    //     .replace(
-    //       /(\u0075[\u0300\u0301\u0302\u0303\u0304\u0305]|[úùûü])/g,
-    //       'u')
-    //     .replace(
-    //       /(\u0063\u0327|ç)/g,
-    //       'c');
-    //   return value;
-    // },
-    // updateSearch: function(text) {
-    //   $scope.searchText = text;
-    // },
-    // search: function(item) {
-    //   if (!$scope.searchText) {
-    //     return true;
-    //   }
-    //   if (typeof item === 'object') {
-    //     item = 'Artigo ' + item.number + ' ' + item.article;
-    //   }
-    //
-    //   var text = helpers.removeAccents(item);
-    //   var search = helpers.removeAccents($scope.searchText);
-    //
-    //   $timeout(function() {
-    //     // Broadcast complete refresh and infinite scroll
-    //     $ionicScrollDelegate.scrollTop();
-    //     $rootScope.$broadcast('scroll.refreshComplete');
-    //     $rootScope.$broadcast('scroll.infiniteScrollComplete');
-    //   }, 100);
-    //   return text.indexOf(search) > -1;
-    // }
     };
 
     var appModel = {
@@ -139,28 +112,68 @@ module.exports = {
     var listController = {
       /**
       * Show the moblet main view
+      * @param {String} category The category
       */
-      showView: function() {
-        legislationModel.getLegislation()
-          .then(function(list) {
-            if (isDefined(list) && list.length > 0) {
-              // Put the list in the $scope
-              $scope.list = list;
-
-              // Add functions to the scope
-              $scope.goToLegislation = listController.goToLegislation;
-
-              helpers.successViewLoad();
-            } else {
-              helpers.error('list not loaded');
+      showView: function(category) {
+        show = function() {
+          // Add functions to the scope
+          if (category === undefined) {
+            var categories = [];
+            for (var i = 0; i < $scope.list.length; i++) {
+              var cat = $scope.list[i].category;
+              var constRegEx = /Constituição/;
+              if (cat.match(constRegEx)) {
+                categories.unshift({
+                  category: cat,
+                  link: 'legislation'
+                });
+              } else {
+                cat = {
+                  category: cat + 's',
+                  link: 'category'
+                };
+                var newCat = true;
+                for (var j = 0; j < categories.length; j++) {
+                  if (categories[j].category === cat.category) {
+                    newCat = false;
+                  }
+                }
+                if (newCat) {
+                  categories.push(cat);
+                }
+              }
             }
-          }).catch(function(err) {
-            helpers.error(err);
-          });
-      },
-      goToLegislation: function(legislation) {
-        $stateParams.detail = page.LEGISLATION + '&' + legislation;
-        $state.go('pages', $stateParams);
+            $scope.categories = categories;
+          } else {
+            var categoryList = [];
+            for (var k = 0; k < $scope.list.length; k++) {
+              var cate = $scope.list[k].category;
+              if (cate + 's' === category) {
+                categoryList.push($scope.list[k].name);
+              }
+            }
+            $scope.categoryList = categoryList;
+          }
+          helpers.successViewLoad();
+        };
+
+        if ($scope.list === undefined) {
+          legislationModel.getLegislation()
+            .then(function(list) {
+              if (isDefined(list) && list.length > 0) {
+                // Put the list in the $scope
+                $scope.list = list;
+
+                show();
+              } else {
+                helpers.error('list not loaded');
+              }
+            }).catch(function(err) {
+              helpers.error(err);
+            });
+        } else {
+          show();
+        }
       }
     };
 
@@ -173,8 +186,8 @@ module.exports = {
               // Put the data in the $scope
               $scope.legislation = legislation.articles;
               $rootScope.legislation = legislation.articles;
-              $scope.legislationType = legislation.type;
-              $rootScope.legislationType = legislation.type;
+              $scope.legislationName = legislation.name;
+              $rootScope.legislationName = legislation.name;
 
               // Add functions to the scope
               $scope.goToArticle = legislationController.goToArticle;
@@ -184,20 +197,16 @@ module.exports = {
           }).catch(function(err) {
             helpers.error(err);
           });
-      },
-      goToArticle: function(legislationType, article) {
-        $stateParams.detail = page.ARTICLE + '&' + legislationType + '&' + article;
-        $state.go('pages', $stateParams);
       }
     };
 
     var articleController = {
-      showView: function(legislationType, articleNumber) {
+      showView: function(legislationName, articleNumber) {
         $scope.isLoading = true;
-        if ($rootScope.legislationType === legislationType) {
+        if ($rootScope.legislationName === legislationName) {
           $timeout(function() {
             // Put the data in the $scope
-            $scope.legislationType = legislationType;
+            $scope.legislationName = legislationName;
             $scope.article = $rootScope.legislation.filter(function(obj) {
               return obj.number === articleNumber;
             })[0].article;
@@ -215,24 +224,34 @@ module.exports = {
     var router = function() {
       // Set general status
       $scope.isLoading = true;
+      $stateParams.pageTitle = null;
       appModel.loadInstanceData()
         .then(function() {
-          // Make the general functions avalable in the scope
-          $scope.listHeight = helpers.listHeight();
-
           var detail = $stateParams.detail.split('&');
           $scope.view = detail[0] === '' ? page.LIST : detail[0];
 
           // Decide where to go based on the $stateParams
           if ($scope.view === page.LIST) {
             listController.showView();
+          } else if ($scope.view === page.CATEGORY) {
+            $stateParams.pageTitle = detail[1];
+            /** PRODUCT PAGE **/
+            listController.showView(detail[1]);
           } else if ($scope.view === page.LEGISLATION) {
+            $stateParams.pageTitle = detail[1];
             /** PRODUCT PAGE **/
             legislationController.showView(detail[1]);
           } else if ($scope.view === page.ARTICLE) {
+            $stateParams.pageTitle = detail[1] + ' - Art. ' + detail[2];
             /** CATEGORY PAGE **/
             articleController.showView(detail[1], detail[2]);
           }
+
+          // Make the general functions avalable in the scope
+          $scope.listHeight = helpers.listHeight();
+          $scope.goToLegislation = helpers.goToLegislation;
+          $scope.goToCategoryOrLegislation = helpers.goToCategoryOrLegislation;
+          $scope.goToArticle = helpers.goToArticle;
         })
         .catch(function(err) {
           helpers.error(err);
