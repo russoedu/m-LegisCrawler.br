@@ -189,9 +189,6 @@ module.exports = {
               $scope.legislationName = legislation.name;
               $rootScope.legislationName = legislation.name;
 
-              // Add functions to the scope
-              $scope.goToArticle = legislationController.goToArticle;
-
               helpers.successViewLoad();
             }, 500);
           }).catch(function(err) {
