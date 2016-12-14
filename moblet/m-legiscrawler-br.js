@@ -14,6 +14,7 @@ module.exports = {
     $state,
     $stateParams,
     $ionicLoading,
+    $ionicModal,
     $ionicScrollDelegate,
     $ionicHistory,
     $mAuth,
@@ -201,24 +202,72 @@ module.exports = {
       }
     };
 
+    var form = {
+      post: function() {
+        var postUrl = $scope.moblet.type.proxy + "post?";
+        var auth = $mAuth.user.get().user;
+        var postData = {
+          code: $scope.moblet.instance.id,
+          user: auth.name,
+          email: auth.email,
+          content: $scope.comment.description,
+          image: $scope.comment.image
+        };
+        console.log(postData);
+      // $http.get(postUrl + postData)
+      //   .success(function() {
+      //     $scope.modal.hide();
+      //     $mLoading.hide();
+      //     $scope.uWallMessage.title = auth.name;
+      //     $scope.uWallMessage.isNew = true;
+      //     if ($scope.items.length === 1) {
+      //       if (typeof $scope.items[0].item.title !== "undefined") {
+      //         $scope.items = [];
+      //       }
+      //     }
+      //     $ionicScrollDelegate.scrollTop();
+      //     $scope.items.unshift({
+      //       item: angular.copy($scope.uWallMessage)
+      //     });
+      //     $scope.uWallMessage.description = "";
+      //   }).error(function() {
+      //   $mLoading.hide();
+      //   $mAlert.toast($filter('translate')("send_error_msg"));
+      // });
+      }
+    };
+
     var modal = {
-      // create: function() {
-      //   var template = fs.readFileSync(path.join(__dirname,
-      //     'u-wall-modal.html'), 'utf8');
-      //   $scope.modal = $ionicModal.fromTemplate(template, {
-      //     scope: $scope,
-      //     animation: 'slide-in-up',
-      //     backdropClickToClose: false,
-      //     hardwareBackButtonClose: true
-      //   // focusFirstInput: true
-      //   });
-      // },
+      create: function() {
+        $rootScope.$on('openModalWall', function() {
+          $scope.modal.show();
+        });
+        $rootScope.$on('closeModalWall', function() {
+          $scope.modal.hide();
+        });
+        $scope.closeModal = modal.close;
+        $scope.comment = {
+          description: "",
+          image: ""
+        };
+        $ionicModal.fromTemplateUrl('my-modal.html', {
+          scope: $scope,
+          animation: 'slide-in-up',
+          backdropClickToClose: false,
+          hardwareBackButtonClose: true,
+          focusFirstInput: true
+        })
+          .then(function(modal) {
+            $scope.modal = modal;
+          });;
+      },
       close: function() {
         $scope.modal.hide();
       },
+      submit: function() {
+        form.post();
+      },
       open: function() {
-        console.log($mAuth.user.get());
-        console.log($mAuth.user.get());
         $mAuth.user.isLogged(function(logged) {
           if (logged) {
             $scope.modal.show();
@@ -255,6 +304,8 @@ module.exports = {
 
     var articleController = {
       addContextualActions: function() {
+        modal.create();
+        $scope.submit = modal.submit;
         var actions = ["ion-ios-compose-outline", "ion-android-create"];
         $mContextualActions.add(
           $scope.page.page_id,

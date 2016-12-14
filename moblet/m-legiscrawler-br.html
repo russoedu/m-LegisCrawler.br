@@ -5,6 +5,31 @@ inner-scroll="false"
 no-content="noContent"
 unavaliable="error"
 >
+	<script id="my-modal.html" type="text/ng-template">
+  <m-modal modal-title="{{'new_message' | translate}}">
+    <modal-left-buttons>
+        <button class="button button-clear button-positive cancel close-modal-button" ng-click="closeModal()">
+            <span translate="cancel" ng-if="$root.isIOS" ></span>
+            <i class="icon ion-android-close"  ng-if="!$root.isIOS" ></i>
+        </button>
+    </modal-left-buttons>
+    <modal-right-buttons>
+        <button class="button button-clear button-positive  secondary submit" ng-click="submit()">
+          <span translate="submit"></span>
+        </button>
+    </modal-right-buttons>
+    <modal-content>
+      <m-form name="uWall"
+              submit="submit">
+          <span class="name-label" ng-bind="userName"></span>
+          <m-textarea placeholder="{{'placeholder_mensage' | translate}}" rows="4" model="comment.description" required></m-textarea>
+					<input type="file" model="comment.image" accept="image/*;capture=camera">
+      </m-form>
+	</modal-content>
+
+</m-modal>
+
+</script>
   <m-content has-bouncing="false">
 		<div
 		ng-if="view === 'category' || view === 'legislation'"
