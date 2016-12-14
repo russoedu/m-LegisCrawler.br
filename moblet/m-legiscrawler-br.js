@@ -13,7 +13,11 @@ module.exports = {
     $timeout,
     $state,
     $stateParams,
+    $ionicLoading,
     $ionicScrollDelegate,
+    $ionicHistory,
+    $mAuth,
+    $mContextualActions,
     $mDataLoader,
     $mFrameSize,
     $http,
@@ -169,8 +173,8 @@ module.exports = {
                 helpers.error('list not loaded');
               }
             }).catch(function(err) {
-              helpers.error(err);
-            });
+            helpers.error(err);
+          });
         } else {
           show();
         }
@@ -192,12 +196,74 @@ module.exports = {
               helpers.successViewLoad();
             }, 500);
           }).catch(function(err) {
-            helpers.error(err);
-          });
+          helpers.error(err);
+        });
+      }
+    };
+
+    var modal = {
+      // create: function() {
+      //   var template = fs.readFileSync(path.join(__dirname,
+      //     'u-wall-modal.html'), 'utf8');
+      //   $scope.modal = $ionicModal.fromTemplate(template, {
+      //     scope: $scope,
+      //     animation: 'slide-in-up',
+      //     backdropClickToClose: false,
+      //     hardwareBackButtonClose: true
+      //   // focusFirstInput: true
+      //   });
+      // },
+      close: function() {
+        $scope.modal.hide();
+      },
+      open: function() {
+        console.log($mAuth.user.get());
+        console.log($mAuth.user.get());
+        $mAuth.user.isLogged(function(logged) {
+          if (logged) {
+            $scope.modal.show();
+          } else {
+            $mAuth.setCallback(function() {
+              $mAuth.user.isLogged(function(isLogged) {
+                if (isLogged) {
+                  $timeout(function() {
+                    $ionicHistory.goBack();
+                    try {
+                      document.querySelector('textarea').style.textIndent = 0;
+                    } catch (r) {}
+                    $timeout(function() {
+                      $rootScope.$broadcast("openModalWall");
+                      $ionicLoading.hide();
+                    }, 500);
+                  }, 500);
+                } else {
+                  $timeout(function() {
+                    $ionicHistory.goBack();
+                    $timeout(function() {
+                      $rootScope.$broadcast("closeModalWall");
+                      $ionicLoading.hide();
+                    }, 500);
+                  }, 500);
+                }
+              });
+            });
+            $mAuth.login();
+          }
+        });
       }
     };
 
     var articleController = {
+      addContextualActions: function() {
+        var actions = ["ion-ios-compose-outline", "ion-android-create"];
+        $mContextualActions.add(
+          $scope.page.page_id,
+          "comment",
+          actions,
+          "float",
+          modal.open
+        );
+      },
       showView: function(legislationName, articleNumber) {
         $scope.isLoading = true;
         if ($rootScope.legislationName === legislationName) {
@@ -209,6 +275,9 @@ module.exports = {
             })[0].article;
             // $scope.article = $rootScope.legislation[article].article;
             $scope.number = articleNumber;
+
+            // Add the comment contextual action
+            // articleController.addContextualActions();
 
             helpers.successViewLoad();
           }, 500);
