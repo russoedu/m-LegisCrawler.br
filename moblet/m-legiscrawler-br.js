@@ -277,7 +277,7 @@ module.exports = {
             $scope.number = articleNumber;
 
             // Add the comment contextual action
-            // articleController.addContextualActions();
+            articleController.addContextualActions();
 
             helpers.successViewLoad();
           }, 500);
