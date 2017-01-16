@@ -5,100 +5,77 @@ inner-scroll="false"
 no-content="noContent"
 unavaliable="error"
 >
-  <m-content has-bouncing="false">
-		<div
-		ng-if="view === 'category' || view === 'legislation'"
-		class="search-bar m-theme-bar-top"
-		>
-			<input
-			ng-model="$parent.searchText"
-			ng-model-options="{debounce: 500}"
-			type="search"
-			class="search-input"
-			placeholder="Buscar Legislação"
-			>
+  <m-content>
+    <!-- SEARCH BAR -->
+    <div
+    ng-if="view === 'list' || view === 'legislation'"
+    class="search-bar m-theme-bar-top"
+    >
+      <form
+      ng-submit="search(query)"
+      >
+        <input
+        ng-model="query.text"
+        id="text"
+        name="text"
+        type="search"
+        placeholder="Buscar conteúdo'"
+        class="search-input"
+        >
+      </form>
     </div>
+    <!-- END: SEARCH BAR -->
     <!-- LIST -->
-		<div
-		ng-if="view === 'list'"
-		direction="y"
-		class="list"
-		>
+    <div
+    ng-if="view === 'list'"
+    direction="y"
+    class="list m-theme-null-background"
+    >
       <!-- ITEM -->
       <div
-			ng-repeat="cat in categories | filter: $parent.searchText"
-			ng-click="goToCategoryOrLegislation(cat)"
-			class="item {{ listStyle }}"
-			>
-        <h1>
-					{{ cat.category }}
-				</h1>
-	    </div>
-		</div>
-
-		<!-- CATEGORY -->
-		<ion-scroll
-		ng-if="view === 'category'"
-		overflow-scroll="false"
-		direction="y"
-		class="list"
-		ng-style="{'height':listHeight}"
-		>
-	      <!-- ITEM -->
-	      <div
-				ng-repeat="legislation in categoryList | filter: $parent.searchText"
-				ng-click="goToLegislation(legislation)"
-				class="item {{ listStyle }}"
-				>
-	        <h1>
-						{{ legislation }}
-					</h1>
-	      </div>
-		</ion-scroll>
-
-
-		<!-- LEGISLATION -->
-		<ion-scroll
-		ng-if="view === 'legislation'"
-		overflow-scroll="false"
-		direction="y"
-		class="legislation list"
-		ng-style="{'height':listHeight}"
-		>
-	      <!-- ITEM -->
-	      <div
-				ng-repeat="article in legislation | filter: $parent.searchText"
-				ng-click="goToArticle(legislationName, article.number)"
-				class="item {{ listStyle }}"
-				>
-	        <h1
-					translate="article"
-					translate-values="{ number: article.number }"
-					>
-					</h1>
-					<p>
-						{{ article.article }}
-					</p>
-	      </div>
-		</ion-scroll>
-    <!-- Detail -->
-    <div
-		ng-if="view === 'article'"
-		class="detail m-theme-null-background {{ articleStyle }}"
-		>
-      <div class="detail-container">
-				<h1>
-					{{ legislationName }}
-				</h1>
-				<h2
-      	translate="article"
-				translate-values="{ number: number }"
-				>
-				</h2>
-        <div class="description">
-        	{{ article }}
-        </div>
+      ng-repeat="category in data"
+      ng-click="goTo(category)"
+      class="item {{ listStyle }} item item-icon-right"
+      >
+        <span ng-bind="category.name"></span>
+        <i
+        ng-if="category.type === 'LIST'"
+        class="list-icon icon ion-chevron-right">
+        </i>
       </div>
     </div>
+    <!-- END: LIST -->
+    <!-- LEGISLATION -->
+    <div
+    ng-if="view === 'legislation'"
+    class="legislation m-theme-null-background"
+    ng-bind-html="data[0].content"
+    >
+    </div>
+    <!-- END: LEGISLATION -->
+    <!-- SEARCH RESULT -->
+    <div
+    ng-if="view === 'search'"
+    direction="y"
+    class="list m-theme-null-background"
+    >
+      <!-- ITEM -->
+      <div
+      ng-repeat="legislation in data"
+      ng-click="goTo(legislation)"
+      class="item {{ listStyle }} item item-icon-right"
+      >
+        <h2>{{ legislation.parent }} > {{ legislation.name }}</h2>
+        <ul>
+          <li
+          ng-repeat="mark in legislation.marks track by $index"
+          data-ng-bind-html="mark"
+          >
+          </li>
+        </ul>
+        {{ legislation }}
+      </div>
+    </div>
+    <!-- END: SEARCH RESULT -->
   </m-content>
 </m-moblet>
