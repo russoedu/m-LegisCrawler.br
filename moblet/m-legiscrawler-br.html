@@ -8,7 +8,7 @@ unavaliable="error"
   <m-content>
     <!-- SEARCH BAR -->
     <div
-    ng-if="view === 'list' || view === 'legislation'"
+    ng-if="view === 'list' || view === 'search'"
     class="search-bar m-theme-bar-top"
     >
       <form
@@ -25,6 +25,38 @@ unavaliable="error"
       </form>
     </div>
     <!-- END: SEARCH BAR -->
+
+    <!-- SEARCH BAR -->
+    <div
+    ng-if="view === 'legislation'"
+    class="legislation-search-bar m-theme-bar-top"
+    >
+      <ion-header-bar align-title="left" class="m-theme-bar-top">
+        <form
+        ng-submit="search(query)"
+        >
+          <input
+          ng-model="query.text"
+          id="text"
+          name="text"
+          type="search"
+          placeholder="Buscar conteúdo'"
+          class="search-input"
+          >
+        </form>
+        <a class="button"><i class="icon ion-arrow-up-b"></i></a>
+        <a class="button"><i class="icon ion-arrow-down-b"></i></a>
+        <!--<div class="buttons">
+          <button class="button" ng-click="doSomething()">Left Button</button>
+        </div>
+        <h1 class="title">Title!</h1>
+        <div class="buttons">
+          <button class="button">Right Button</button>
+        </div>-->
+      </ion-header-bar>
+    </div>
+    <!-- END: SEARCH BAR -->
+
     <!-- LIST -->
     <div
     ng-if="view === 'list'"
@@ -45,6 +77,7 @@ unavaliable="error"
       </div>
     </div>
     <!-- END: LIST -->
+
     <!-- LEGISLATION -->
     <div
     ng-if="view === 'legislation'"
@@ -53,27 +86,25 @@ unavaliable="error"
     >
     </div>
     <!-- END: LEGISLATION -->
+
     <!-- SEARCH RESULT -->
     <div
     ng-if="view === 'search'"
     direction="y"
-    class="list m-theme-null-background"
+    class="list search m-theme-null-background"
     >
       <!-- ITEM -->
       <div
       ng-repeat="legislation in data"
-      ng-click="goTo(legislation)"
       class="item {{ listStyle }} item item-icon-right"
       >
-        <h2>{{ legislation.parent }} > {{ legislation.name }}</h2>
-        <ul>
-          <li
-          ng-repeat="mark in legislation.marks track by $index"
+        <h2>{{ legislation.breadCrumb }}{{ legislation.name }}</h2>
+        <p
+          ng-click="scrollTo(legislation, key)"
+          ng-repeat="(key, mark) in legislation.marks track by $index"
           data-ng-bind-html="mark"
           >
-          </li>
-        </ul>
-        {{ legislation }}
+        </p>
       </div>
     </div>
     <!-- END: SEARCH RESULT -->

@@ -4,6 +4,9 @@ m-legiscrawler-br{
   a {
     color: @font-color;
   }
+  .button {
+    background-color: black;
+  }
   // SEARCH BAR
   .search-bar {
     display: block;
@@ -16,6 +19,30 @@ m-legiscrawler-br{
       background: #FFFFFF;
     }
   }
+  .legislation-search-bar {
+    display: block;
+    padding: 10px 10px 12px 10px;
+    .search-input {
+      height: 30px;
+      width: ~"calc(100% - 110px)";
+      border-radius: 5px;
+      padding: 0 10px;
+      background: #FFFFFF;
+    }
+    .button-bar {
+      margin: 0;
+      padding: 0;
+      float: left;
+      display: block;
+      .button {
+        background-color: black;
+        i {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+
   .style-card{
     box-shadow: 0 1px 3px rgba(0,0,0,.3);
     margin: 10px;
@@ -58,6 +85,25 @@ m-legiscrawler-br{
       line-height: 1.3em;
       color: #333;
       white-space: normal;
+    }
+  }
+  .search {
+    padding: 0;
+    .item {
+      padding: 3vw;
+      h2, p {
+        padding: 0;
+        margin: 0;
+        width: 94vw;
+      }
+      h2 {
+        padding-bottom: 10px;
+      }
+      p {
+        display: block;
+        border-top: 1px solid #b2b2b2;
+        padding: 5px 0;
+      }
     }
   }
 }

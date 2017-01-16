@@ -54,26 +54,6 @@ module.exports = {
         var height = parseInt($mFrameSize.height(), 10);
         return (height - 50) + "px";
       },
-      goTo: function(item) {
-				console.log(item);
-				// type === LIST
-				var parent = item.parent === '/' ? '' : item.parent;
-        console.log(parent);
-        if (item.type === 'LIST') {
-          $stateParams.detail = page.LIST + '&' + parent + '/' + item.slug;
-				// type === LEGISLATION
-        } else {
-          $stateParams.detail = page.LEGISLATION + '&' + parent + '/l/' + item.slug;
-        }
-        console.log($stateParams.detail);
-        $state.go('pages', $stateParams);
-      },
-      search: function(query) {
-        var searchQuery = ($scope.parent || '') + '?search=' + query.text;
-        $stateParams.detail = page.SEARCH + '&' + searchQuery;
-        console.log($stateParams);
-        $state.go('pages', $stateParams);
-      }
     };
 
     var appModel = {
@@ -137,6 +117,30 @@ module.exports = {
           }).catch(function(err) {
             helpers.error(err);
           });
+      },
+      goTo: function(item) {
+				console.log(item);
+				// type === LIST
+				var parent = item.parent === '/' ? '' : item.parent;
+        console.log(parent);
+        if (item.type === 'LIST') {
+          $stateParams.detail = page.LIST + '&' + parent + '/' + item.slug;
+				// type === LEGISLATION
+        } else {
+          $stateParams.detail = page.LEGISLATION + '&' + parent + '/l/' + item.slug;
+        }
+        console.log($stateParams.detail);
+        $state.go('pages', $stateParams);
+      },
+      scrollTo(legislation, markId) {
+        console.log(legislation, markId);
+        controller.goTo(legislation);
+      },
+      search: function(query) {
+        var searchQuery = ($scope.parent || '') + '?search=' + query.text;
+        $stateParams.detail = page.SEARCH + '&' + searchQuery;
+        console.log($stateParams);
+        $state.go('pages', $stateParams);
       }
     };
 
@@ -152,8 +156,9 @@ module.exports = {
 
           // Make the general functions avalable in the scope
           $scope.listHeight = helpers.listHeight();
-          $scope.goTo = helpers.goTo;
-          $scope.search = helpers.search;
+          $scope.goTo = controller.goTo;
+          $scope.scrollTo = controller.scrollTo;
+          $scope.search = controller.search;
           $scope.query = {
             text: ''
           };
