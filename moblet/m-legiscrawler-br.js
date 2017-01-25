@@ -21,9 +21,11 @@ module.exports = {
     $mDataLoader,
     $mFrameSize,
     $http,
+    $sce,
     $q
   ) {
-    var baseUrl = "http://api.legiscrawler.com.br/v1";
+    // var baseUrl = "http://api.legiscrawler.com.br/v1";
+    var baseUrl = "http://localhost:8080/v1";
 
     var page = {
       LIST: 'list',
@@ -47,13 +49,14 @@ module.exports = {
         $scope.isLoading = false;
 
         // Broadcast complete refresh and infinite scroll
+        $ionicScrollDelegate.resize();
         $rootScope.$broadcast('scroll.refreshComplete');
         $rootScope.$broadcast('scroll.infiniteScrollComplete');
       },
       listHeight: function() {
         var height = parseInt($mFrameSize.height(), 10);
         return (height - 50) + "px";
-      },
+      }
     };
 
     var appModel = {
@@ -82,11 +85,9 @@ module.exports = {
       getLegislation: function(legislation) {
         var deferred = $q.defer();
         var url = baseUrl + (legislation || '');
-        console.log(url);
         $http.get(url)
           .then(
             function(response) {
-              console.log(response.data);
               deferred.resolve(response.data);
             },
             function(err) {
@@ -103,13 +104,26 @@ module.exports = {
       * Put the legislation OR the list of legislations and lists in the $scope.data
       * @param {String} category The category or null to retrieve the home of the API
       */
-      showView: function(category) {
-        $scope.parent = category;
-        legislationModel.getLegislation(category)
+      showListView: function(category) {
+        $timeout(function() {
+          var query = {
+            text: ''
+          };
+          $scope.parent = category;
+          $scope.searchQuery = '';
+          if (category !== null && category !== '' && typeof category !== 'undefined') {
+            var search = category.split('?search=');
+            if (typeof search !== 'undefined' && search.length > 1) {
+              $scope.searchQuery = search[1];
+              query.text = search[1];
+            }
+          }
+          legislationModel.getLegislation(category)
           .then(function(data) {
             if (isDefined(data)) {
               // Put the data in the $scope
               $scope.data = data;
+              $scope.query = query;
               helpers.successViewLoad();
             } else {
               helpers.error('list not loaded');
@@ -117,30 +131,86 @@ module.exports = {
           }).catch(function(err) {
             helpers.error(err);
           });
+        }, 500);
       },
-      goTo: function(item) {
-				console.log(item);
-				// type === LIST
-				var parent = item.parent === '/' ? '' : item.parent;
-        console.log(parent);
+      showLegislationView: function(endpoint) {
+        $timeout(function() {
+          $scope.iFrameUrl = $sce.trustAsResourceUrl(baseUrl + endpoint);
+          var query = {
+            text: ''
+          };
+          var mark = endpoint.split('#mark-');
+          var search = '';
+          $scope.baseIframeUrl = endpoint;
+          if (typeof mark !== 'undefined' && mark.length > 1) {
+            search = mark[0].split('?search=');
+            $scope.mark = mark[1];
+            $scope.baseIframeUrl = baseUrl + mark[0];
+          } else {
+            search = endpoint.split('?search=');
+          }
+          if (typeof search !== 'undefined' && search.length > 1) {
+            query.text = search[1];
+          }
+
+          $timeout(function() {
+            $scope.query = query;
+            helpers.successViewLoad();
+          }, 2500);
+        }, 500);
+      },
+      search: function(query, iFrameUrl) {
+        var searchQuery = ($scope.parent || '') + '?search=' + query.text;
+        if ($scope.view === page.LEGISLATION) {
+          $scope.isLoading = true;
+          var url = $sce.getTrusted('url', iFrameUrl).split('?search=')[0];
+
+          $scope.baseIframeUrl = url + searchQuery;
+          $scope.mark = 0;
+          $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
+          $timeout(function() {
+            helpers.successViewLoad();
+          }, 2500);
+        } else {
+          $stateParams.detail = page.SEARCH + '&' + searchQuery;
+          console.log($stateParams);
+          $state.go('pages', $stateParams);
+        }
+      },
+      goTo: function(item, markId) {
+        markId = markId || false;
+        var searchQuery = $scope.searchQuery || false;
+        var parent = item.parent === '/' ? '' : item.parent;
+        // type === LIST
         if (item.type === 'LIST') {
           $stateParams.detail = page.LIST + '&' + parent + '/' + item.slug;
+          $state.go('pages', $stateParams);
 				// type === LEGISLATION
         } else {
-          $stateParams.detail = page.LEGISLATION + '&' + parent + '/l/' + item.slug;
+          var detail = page.LEGISLATION + '&' + parent + '/l/' + item.slug;
+          if (searchQuery) {
+            detail += '?search=' + searchQuery;
+          }
+          if (markId) {
+            detail += '#mark-' + markId;
+          }
+
+          $stateParams.detail = detail;
+          $state.go('pages', $stateParams);
         }
-        console.log($stateParams.detail);
-        $state.go('pages', $stateParams);
       },
       scrollTo(legislation, markId) {
-        console.log(legislation, markId);
-        controller.goTo(legislation);
+        controller.goTo(legislation, markId);
       },
-      search: function(query) {
-        var searchQuery = ($scope.parent || '') + '?search=' + query.text;
-        $stateParams.detail = page.SEARCH + '&' + searchQuery;
-        console.log($stateParams);
-        $state.go('pages', $stateParams);
+      nextMark() {
+        $scope.mark = Number($scope.mark) + 1;
+        $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
+      },
+      previousMark() {
+        if ($scope.mark > 0) {
+          $scope.mark = Number($scope.mark) - 1;
+          $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
+        }
       }
     };
 
@@ -151,13 +221,19 @@ module.exports = {
         .then(function() {
           var detail = $stateParams.detail.split('&');
           $scope.view = detail[0] === '' ? page.LIST : detail[0];
-
-          controller.showView(detail[1] || null);
+          if ($scope.view === page.LIST || $scope.view === page.SEARCH) {
+            controller.showListView(detail[1] || null);
+          } else {
+            controller.showLegislationView(detail[1] || null);
+          }
 
           // Make the general functions avalable in the scope
           $scope.listHeight = helpers.listHeight();
           $scope.goTo = controller.goTo;
           $scope.scrollTo = controller.scrollTo;
+          $scope.nextMark = controller.nextMark;
+          $scope.nextMark = controller.nextMark;
+          $scope.previousMark = controller.previousMark;
           $scope.search = controller.search;
           $scope.query = {
             text: ''

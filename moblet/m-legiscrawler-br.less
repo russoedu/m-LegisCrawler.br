@@ -9,25 +9,13 @@ m-legiscrawler-br{
   }
   // SEARCH BAR
   .search-bar {
-    display: block;
-    padding: 10px 10px 12px 10px;
+    padding: 12px 10px;
     .search-input {
       height: 30px;
+      border-radius: 5px;
+      padding: 0 10px;
+      background: #FFFFFF;
       width: ~"calc(100% - 20px)";
-      border-radius: 5px;
-      padding: 0 10px;
-      background: #FFFFFF;
-    }
-  }
-  .legislation-search-bar {
-    display: block;
-    padding: 10px 10px 12px 10px;
-    .search-input {
-      height: 30px;
-      width: ~"calc(100% - 110px)";
-      border-radius: 5px;
-      padding: 0 10px;
-      background: #FFFFFF;
     }
     .button-bar {
       margin: 0;
@@ -41,6 +29,41 @@ m-legiscrawler-br{
         }
       }
     }
+  }
+  .list-search-header {
+    .search-input {
+    }
+  }
+  .legislation-search-header {
+    height: 50px;
+    .search-input {
+      width: ~"calc(100% - 110px)!important";
+      float: left;
+    }
+    .action-buttons {
+      display: block;
+      float: left;
+      background-color: white;
+      border-radius: 5px;
+      margin-left: 30px;
+      .action-button {
+        width: 30px;
+        height: 30px;
+        float: left;
+        .icon {
+          width: 30px;
+          height: 25px;
+          display: block;
+          text-align: center;
+          margin-top: 5px;
+        }
+      }
+    }
+  }
+  .iframe-holder {
+    background-color: white;
+    padding: 0!important;
+    top: 50px;
   }
 
   .style-card{
@@ -59,32 +82,6 @@ m-legiscrawler-br{
       .list-icon {
         font-size: 15px;
       }
-    }
-  }
-  .legislation {
-    padding: 3vw;
-    .item {
-      display: -webkit-box;
-      -webkit-line-clamp:2;
-      -webkit-box-orient: vertical;
-      max-height: 5.8em; /* exactly two lines */
-      height: auto;
-    }
-    .style-list{
-      h1 {
-        margin: 0;
-      }
-    }
-    .style-card{
-      h1 {
-        border-bottom: 1px solid @grey-border;
-      }
-    }
-    p {
-      font-size: 14px;
-      line-height: 1.3em;
-      color: #333;
-      white-space: normal;
     }
   }
   .search {

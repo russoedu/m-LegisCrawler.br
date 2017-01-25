@@ -8,11 +8,12 @@ unavaliable="error"
   <m-content>
     <!-- SEARCH BAR -->
     <div
-    ng-if="view === 'list' || view === 'search'"
     class="search-bar m-theme-bar-top"
+    ng-class="{'list-search-header': view === 'list' || view === 'search',
+    'legislation-search-header': view === 'legislation'}"
     >
       <form
-      ng-submit="search(query)"
+      ng-submit="search(query, iFrameUrl)"
       >
         <input
         ng-model="query.text"
@@ -23,37 +24,23 @@ unavaliable="error"
         class="search-input"
         >
       </form>
-    </div>
-    <!-- END: SEARCH BAR -->
-
-    <!-- SEARCH BAR -->
-    <div
-    ng-if="view === 'legislation'"
-    class="legislation-search-bar m-theme-bar-top"
-    >
-      <ion-header-bar align-title="left" class="m-theme-bar-top">
-        <form
-        ng-submit="search(query)"
+      <div
+      ng-if="view === 'legislation'"
+      class="action-buttons"
+      >
+        <a
+        ng-click="previousMark()"
+        class="action-button"
         >
-          <input
-          ng-model="query.text"
-          id="text"
-          name="text"
-          type="search"
-          placeholder="Buscar conteúdo'"
-          class="search-input"
-          >
-        </form>
-        <a class="button"><i class="icon ion-arrow-up-b"></i></a>
-        <a class="button"><i class="icon ion-arrow-down-b"></i></a>
-        <!--<div class="buttons">
-          <button class="button" ng-click="doSomething()">Left Button</button>
-        </div>
-        <h1 class="title">Title!</h1>
-        <div class="buttons">
-          <button class="button">Right Button</button>
-        </div>-->
-      </ion-header-bar>
+          <i class="icon ion-arrow-up-b"></i>
+        </a>
+        <a
+        ng-click="nextMark()"
+        class="action-button"
+        >
+          <i class="icon ion-arrow-down-b"></i>
+        </a>
+      </div>
     </div>
     <!-- END: SEARCH BAR -->
 
@@ -81,9 +68,15 @@ unavaliable="error"
     <!-- LEGISLATION -->
     <div
     ng-if="view === 'legislation'"
-    class="legislation m-theme-null-background"
-    ng-bind-html="data[0].content"
+    class="iframe-holder"
     >
+      <iframe
+      ng-src="{{ iFrameUrl }}"
+      data-tap-disabled="true"
+      scrolling="yes"
+      id="legislation"
+      >
+      </iframe>
     </div>
     <!-- END: LEGISLATION -->
 
