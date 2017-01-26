@@ -24,8 +24,8 @@ module.exports = {
     $sce,
     $q
   ) {
-    // var baseUrl = "http://api.legiscrawler.com.br/v1";
-    var baseUrl = "http://localhost:8080/v1";
+    var baseUrl = "http://api.legiscrawler.com.br/v1";
+    // var baseUrl = "http://localhost:8080/v1";
 
     var page = {
       LIST: 'list',
@@ -49,9 +49,11 @@ module.exports = {
         $scope.isLoading = false;
 
         // Broadcast complete refresh and infinite scroll
-        $ionicScrollDelegate.resize();
-        $rootScope.$broadcast('scroll.refreshComplete');
-        $rootScope.$broadcast('scroll.infiniteScrollComplete');
+        $timeout(function() {
+          $ionicScrollDelegate.resize();
+          $rootScope.$broadcast('scroll.refreshComplete');
+          $rootScope.$broadcast('scroll.infiniteScrollComplete');
+        }, 500);
       },
       listHeight: function() {
         var height = parseInt($mFrameSize.height(), 10);
@@ -123,6 +125,9 @@ module.exports = {
             if (isDefined(data)) {
               // Put the data in the $scope
               $scope.data = data;
+              if (data.length === 0) {
+                $scope.noData = true;
+              }
               $scope.query = query;
               helpers.successViewLoad();
             } else {
@@ -135,7 +140,6 @@ module.exports = {
       },
       showLegislationView: function(endpoint) {
         $timeout(function() {
-          $scope.iFrameUrl = $sce.trustAsResourceUrl(baseUrl + endpoint);
           var query = {
             text: ''
           };
@@ -154,9 +158,10 @@ module.exports = {
           }
 
           $timeout(function() {
+            $scope.iFrameUrl = $sce.trustAsResourceUrl(baseUrl + endpoint);
             $scope.query = query;
             helpers.successViewLoad();
-          }, 2500);
+          }, 1000);
         }, 500);
       },
       search: function(query, iFrameUrl) {
@@ -170,10 +175,10 @@ module.exports = {
           $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
           $timeout(function() {
             helpers.successViewLoad();
-          }, 2500);
+          }, 100);
         } else {
           $stateParams.detail = page.SEARCH + '&' + searchQuery;
-          console.log($stateParams);
+          // console.log($stateParams);
           $state.go('pages', $stateParams);
         }
       },
@@ -232,12 +237,12 @@ module.exports = {
           $scope.goTo = controller.goTo;
           $scope.scrollTo = controller.scrollTo;
           $scope.nextMark = controller.nextMark;
-          $scope.nextMark = controller.nextMark;
           $scope.previousMark = controller.previousMark;
           $scope.search = controller.search;
           $scope.query = {
             text: ''
           };
+          $scope.noData = false;
         })
         .catch(function(err) {
           helpers.error(err);

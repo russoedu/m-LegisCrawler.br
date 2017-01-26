@@ -8,6 +8,7 @@ unavaliable="error"
   <m-content>
     <!-- SEARCH BAR -->
     <div
+    ng-if="!noData"
     class="search-bar m-theme-bar-top"
     ng-class="{'list-search-header': view === 'list' || view === 'search',
     'legislation-search-header': view === 'legislation'}"
@@ -25,7 +26,7 @@ unavaliable="error"
         >
       </form>
       <div
-      ng-if="view === 'legislation'"
+      ng-if="view === 'legislation' && !noData"
       class="action-buttons"
       >
         <a
@@ -46,7 +47,7 @@ unavaliable="error"
 
     <!-- LIST -->
     <div
-    ng-if="view === 'list'"
+    ng-if="view === 'list'  && !noData"
     direction="y"
     class="list m-theme-null-background"
     >
@@ -58,7 +59,7 @@ unavaliable="error"
       >
         <span ng-bind="category.name"></span>
         <i
-        ng-if="category.type === 'LIST'"
+        ng-if="category.type === 'LIST'  && !noData"
         class="list-icon icon ion-chevron-right">
         </i>
       </div>
@@ -67,8 +68,8 @@ unavaliable="error"
 
     <!-- LEGISLATION -->
     <div
-    ng-if="view === 'legislation'"
-    class="iframe-holder"
+    ng-if="view === 'legislation'  && !noData"
+    class="iframe-container"
     >
       <iframe
       ng-src="{{ iFrameUrl }}"
@@ -77,12 +78,13 @@ unavaliable="error"
       id="legislation"
       >
       </iframe>
+      <ion-spinner></ion-spinner>
     </div>
     <!-- END: LEGISLATION -->
 
     <!-- SEARCH RESULT -->
     <div
-    ng-if="view === 'search'"
+    ng-if="view === 'search' && !noData"
     direction="y"
     class="list search m-theme-null-background"
     >
@@ -99,6 +101,13 @@ unavaliable="error"
           >
         </p>
       </div>
+    </div>
+    <div
+    ng-if="noData"
+    class="no-data m-theme-null-background"
+    >
+    <h4>Sem resultados</h4>
+    <p>Por favor, tente novamente com outros termos</p>
     </div>
     <!-- END: SEARCH RESULT -->
   </m-content>

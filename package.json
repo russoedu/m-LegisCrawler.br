@@ -1,6 +1,6 @@
 {
   "name": "m-legiscrawler-br",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "description": "This is a list moblet for Moblets and FabApp. You can use it as base to create a new one.",
   "main": "server/feed.js",
   "scripts": {
