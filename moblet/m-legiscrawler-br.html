@@ -1,11 +1,11 @@
-<m-moblet
+<!-- <m-moblet
 init="init"
 is-loading="isLoading"
 inner-scroll="false"
 no-content="noContent"
 unavaliable="error"
 >
-  <m-content>
+  <m-content> -->
     <!-- SEARCH BAR -->
     <div
     ng-if="!noData"
@@ -31,13 +31,13 @@ unavaliable="error"
       >
         <a
         ng-click="previousMark()"
-        class="action-button"
+        class="action-button action-button-up"
         >
           <i class="icon ion-arrow-up-b"></i>
         </a>
         <a
         ng-click="nextMark()"
-        class="action-button"
+        class="action-button action-button-down"
         >
           <i class="icon ion-arrow-down-b"></i>
         </a>
@@ -110,5 +110,5 @@ unavaliable="error"
     <p>Por favor, tente novamente com outros termos</p>
     </div>
     <!-- END: SEARCH RESULT -->
-  </m-content>
-</m-moblet>
+  <!-- </m-content>
+</m-moblet> -->

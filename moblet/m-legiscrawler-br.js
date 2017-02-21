@@ -11,7 +11,7 @@ module.exports = {
     $scope,
     $rootScope,
     $timeout,
-    $state,
+    $mState,
     $stateParams,
     $ionicLoading,
     $ionicScrollDelegate,
@@ -36,17 +36,17 @@ module.exports = {
     var helpers = {
       error: function(err) {
         console.error(err);
-        $scope.isLoading = false;
-        $scope.error = true;
-        $scope.noContent = true;
+        $scope.moblet.isLoading = false;
+        $scope.moblet.error = true;
+        $scope.moblet.noContent = true;
       },
       successViewLoad: function() {
         // Set error and noContent to false
-        $scope.error = false;
-        $scope.noContent = false;
+        $scope.moblet.error = false;
+        $scope.moblet.noContent = false;
 
         // Remove the loader
-        $scope.isLoading = false;
+        $scope.moblet.isLoading = false;
 
         // Broadcast complete refresh and infinite scroll
         $timeout(function() {
@@ -87,7 +87,7 @@ module.exports = {
       getLegislation: function(legislation) {
         var deferred = $q.defer();
         var url = baseUrl + (legislation || '');
-        $http.get(url)
+        $http.get(url, {withCredentials: false})
           .then(
             function(response) {
               deferred.resolve(response.data);
@@ -167,7 +167,7 @@ module.exports = {
       search: function(query, iFrameUrl) {
         var searchQuery = ($scope.parent || '') + '?search=' + query.text;
         if ($scope.view === page.LEGISLATION) {
-          $scope.isLoading = true;
+          $scope.moblet.isLoading = true;
           var url = $sce.getTrusted('url', iFrameUrl).split('?search=')[0];
 
           $scope.baseIframeUrl = url + searchQuery;
@@ -179,7 +179,7 @@ module.exports = {
         } else {
           $stateParams.detail = page.SEARCH + '&' + searchQuery;
           // console.log($stateParams);
-          $state.go('pages', $stateParams);
+          $mState.go('u-moblets', 'page', $stateParams);
         }
       },
       goTo: function(item, markId) {
@@ -189,7 +189,8 @@ module.exports = {
         // type === LIST
         if (item.type === 'LIST') {
           $stateParams.detail = page.LIST + '&' + parent + '/' + item.slug;
-          $state.go('pages', $stateParams);
+          $mState.go('u-moblets', 'page', $stateParams);
+          // $state.go('pages', $stateParams);
 				// type === LEGISLATION
         } else {
           var detail = page.LEGISLATION + '&' + parent + '/l/' + item.slug;
@@ -201,18 +202,21 @@ module.exports = {
           }
 
           $stateParams.detail = detail;
-          $state.go('pages', $stateParams);
+          $mState.go('u-moblets', 'page', $stateParams);
+          // $state.go('pages', $stateParams);
         }
       },
       scrollTo(legislation, markId) {
         controller.goTo(legislation, markId);
       },
       nextMark() {
-        $scope.mark = Number($scope.mark) + 1;
-        $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
+        if ($scope.query.text) {
+          $scope.mark = Number($scope.mark) + 1;
+          $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
+        }
       },
       previousMark() {
-        if ($scope.mark > 0) {
+        if ($scope.query.text && $scope.mark > 0) {
           $scope.mark = Number($scope.mark) - 1;
           $scope.iFrameUrl = $sce.trustAsResourceUrl($scope.baseIframeUrl + '#mark-' + $scope.mark);
         }
@@ -221,7 +225,7 @@ module.exports = {
 
     var router = function() {
       // Set general status
-      $scope.isLoading = true;
+      $scope.moblet.isLoading = true;
       appModel.loadInstanceData()
         .then(function() {
           var detail = $stateParams.detail.split('&');
